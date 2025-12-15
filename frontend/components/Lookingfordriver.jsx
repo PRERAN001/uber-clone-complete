@@ -5,8 +5,8 @@ import car from "../src/assets/car.png"
 import auto from "../src/assets/auto.png"
 import bike from "../src/assets/bike.png"
 import socket from "../src/utils/socket"
-const Lookingfordriver = ({setdfound,vfound,setride,valuepick,valuedrop}) => {
-  const {Price,setPrice,vechicle,distance,setDistance,time,setTime,user}=useContext(Usercontext)
+const Lookingfordriver = ({setdfound,vfound,setride,valuepick,valuedrop, setwdriver}) => {
+  const {Price,setPrice,vechicle,distance,setDistance,time,setTime,user,invitieacc,setinvitieacc} = useContext(Usercontext)
   let v=car
     if(vechicle=="auto"){
       v=auto
@@ -30,6 +30,8 @@ const Lookingfordriver = ({setdfound,vfound,setride,valuepick,valuedrop}) => {
 };
 
   function senddata(){
+    setinvitieacc(true)
+    setwdriver(false)
     console.log("Sending lookingfordriver data:", data);
     socket.emit('lookingfordriver',data)
   }

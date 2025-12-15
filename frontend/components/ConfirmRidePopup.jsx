@@ -1,9 +1,33 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from 'react'
 import { Usercontext } from '../src/context/Usecontext'
 const ConfirmRidePopup = ({ setShowPopup }) => {
-  const {user,droplocname,price,pickupppp} = useContext(Usercontext)
+  const navigate = useNavigate();
+  const { user, droplocname, pickupppp, Price, setPrice, setPickupname, setPickupppp, setFinalpickup, setFinaldrop } = useContext(Usercontext)
+  const displayPrice = (Price && Number(Price) > 0) ? Price : 38.75;
+
+  function handleConfirm() {
+    // ensure context has the selected pickup and price
+    if (typeof setPickupname === 'function') setPickupname(pickupppp || "");
+    if (typeof setPickupppp === 'function') setPickupppp(pickupppp || "");
+    if (typeof setPrice === 'function') setPrice(displayPrice);
+    // also set final pickup/drop so other pages relying on final* fields update
+    if (typeof setFinalpickup === 'function') setFinalpickup(pickupppp || "");
+    if (typeof setFinaldrop === 'function') setFinaldrop(droplocname || "");
+    // persist to localStorage as a synchronous fallback for immediate navigation
+    try {
+      localStorage.setItem('finalpickup', pickupppp || '');
+      localStorage.setItem('finaldrop', droplocname || '');
+      localStorage.setItem('ridePrice', String(displayPrice));
+      const pname = (user && user.firstname) || (caption && caption.firstname) || '';
+      if (pname) localStorage.setItem('passengerName', pname);
+    } catch (e) {
+      // ignore localStorage errors
+    }
+    setShowPopup(false);
+    navigate('/captionriding');
+  }
   return (
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between mb-6">
@@ -22,7 +46,7 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
 
       <div className="mb-6">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex flex-col items-center pt-1 flex-shrink-0">
+          <div className="flex flex-col items-center pt-1 shrink-0">
             <div className="w-3 h-3 bg-black rounded-full"></div>
             <div className="w-0.5 h-8 sm:h-10 bg-gray-300 my-1"></div>
             <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
@@ -57,7 +81,7 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
               <span className="text-lg sm:text-xl">
                 <i className="ri-roadster-line"></i>
               </span>
@@ -69,8 +93,8 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
               </p>
             </div>
           </div>
-          <p className="text-gray-900 text-lg sm:text-xl font-bold ml-4 flex-shrink-0">
-            ${price || 38.75}
+          <p className="text-gray-900 text-lg sm:text-xl font-bold ml-4 shrink-0">
+            ${displayPrice}
           </p>
         </div>
         <div className="h-px bg-gray-200 mb-3 sm:mb-4"></div>
@@ -91,7 +115,7 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center shrink-0">
             <span className="text-white text-base sm:text-lg">
               <i className="ri-visa-line"></i>
             </span>
@@ -106,9 +130,9 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
       </div>
 
       <div className="space-y-3 sm:space-y-4">
-        <Link to="/captionriding" className="w-full inline-flex items-center justify-center bg-black text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base hover:bg-gray-900 transition active:scale-[0.98]">
+        <button onClick={handleConfirm} className="w-full inline-flex items-center justify-center bg-black text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base hover:bg-gray-900 transition active:scale-[0.98]">
           Confirm UberX
-        </Link>
+        </button>
         <Link to="/captionhome"
           className="w-full inline-flex items-center justify-center bg-white text-gray-900 py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold border border-gray-300 text-sm sm:text-base hover:bg-gray-50 transition active:scale-[0.98]"
           onClick={() => setShowPopup(false)}

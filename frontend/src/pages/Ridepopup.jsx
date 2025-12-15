@@ -2,9 +2,11 @@ import React,{useState,useEffect} from "react";
 import socket from "../utils/socket";
 import { captioncontext } from "../context/Captioncontext";
 import { useContext } from "react";
+import {Usercontext} from "../context/Usecontext.jsx"
 const Ridepopup = ({ setShowPopup, setShowConfirmPopup, ridepopupdata = {} }) => {
   const [data, setData] = useState({});
   const { caption } = useContext(captioncontext);
+  const {invitieacc,setinvitieacc}=useContext(Usercontext)
 
   useEffect(() => {
     if (ridepopupdata && Object.keys(ridepopupdata).length) {
@@ -31,6 +33,7 @@ const Ridepopup = ({ setShowPopup, setShowConfirmPopup, ridepopupdata = {} }) =>
   const handleAccept = () => {
     setShowPopup(false);
     setShowConfirmPopup(true);
+    setinvitieacc(false)
     
     const driverId = localStorage.getItem("driverid");
     console.log("Driver accepting ride with driverId:", driverId);

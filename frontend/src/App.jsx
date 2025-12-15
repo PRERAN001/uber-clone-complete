@@ -11,9 +11,10 @@ import Userlogout from "./pages/Userlogout";
 import Riding from "./pages/Riding";
 import Captionhome from "./pages/Captionhome";
 import Captionriding from "./pages/Captionriding";
-
+import { Usercontext } from "./context/Usecontext";
+import { useContext } from "react";
 const App = () => {
- 
+ const { finalpickup, setFinalpickup, finaldrop, setFinaldrop } = useContext(Usercontext);
 
   return (
     <div>
@@ -25,7 +26,7 @@ const App = () => {
           <Route path="/userlogin" element={<Userlogin />} />
           <Route path="/userregister" element={<Userregister />} />
           <Route path="/captionhome" element={<Captionhome />} />
-          <Route path="/captionriding" element={<Captionriding />} />
+          <Route path="/captionriding" element={<Captionriding finalpickup={finalpickup} finaldrop={finaldrop} />} />
           <Route path="/start" element={
             <Userprotectroute>
               <Strart />

@@ -15,6 +15,7 @@ import axios from "axios";
 import { Usercontext } from "../context/Usecontext.jsx";
 import haversineDistance from "../utils/fnddsusngcordinates.js";
 import socket from "../utils/socket.js";
+import Waitingfordriver from "../../components/Waitingfordriver.jsx";
 
 const Strart = () => {
   const [pickup, setpickup] = useState("");
@@ -41,10 +42,11 @@ const Strart = () => {
     latitude: 12.96,
     longitude: 77.58,
   });
-  const { droplocname, location, setPickupname, setPickupppp ,driverprice} =
+  const { droplocname, location, setPickupname, setPickupppp ,driverprice,setinvitieacc,invitieacc} =
     useContext(Usercontext);
   const [currentcordinates, setCurrentcordinates] = useState(null);
   const [distance, setDistance] = useState(0);
+  const accbydriver=useRef(null)
 
   useEffect(() => {
     const handleRideAccepted = (data) => {
@@ -81,8 +83,12 @@ const Strart = () => {
         latitude: location.latitude,
         longitude: location.longitude,
       });
+      
+      
+      
     }
   }, [location]);
+
   const senddatapickup = async () => {
     try {
       const data = await axios.post(
@@ -97,7 +103,9 @@ const Strart = () => {
         longitude: data.data.latlon.longitude,
       });
       setPickupname(pickup);
+     
       setPickupppp(pickup);
+      console.log("final pickup",finalpickup)
     } catch (err) {
       console.error(
         "Error sending pickup location:",
@@ -118,6 +126,8 @@ const Strart = () => {
         latitude: data.data.latlon.latitude,
         longitude: data.data.latlon.longitude,
       });
+      
+      console.log("final drop",finaldrop)
     } catch (err) {
       console.error(
         "Error sending drop location:",
@@ -222,6 +232,22 @@ const Strart = () => {
       });
     }
   }, [dfound]);
+    useGSAP(() => {
+    if (invitieacc) {
+      gsap.to(accbydriver.current, {
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+      });
+    } else {
+      gsap.to(accbydriver.current, {
+        y: "100%",
+        duration: 0.6,
+        ease: "power3.in",
+      });
+    }
+  }, [invitieacc]);
+
   return (
     <div className="h-screen relative overflow-hidden">
       <img
@@ -376,7 +402,15 @@ const Strart = () => {
           setride={setride}
           valuepick={pickup}
           valuedrop={droplocname}
+          setwdriver={setwdriver}
         />
+      </div>
+      <div
+        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full"
+        ref={accbydriver}
+      >
+        <Waitingfordriver />
+        
       </div>
       <div
         className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full"
@@ -397,3 +431,7 @@ const Strart = () => {
 };
 
 export default Strart;
+
+
+
+

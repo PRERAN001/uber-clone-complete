@@ -37,12 +37,13 @@ io.on("connection", (socket) => {
     const driverId = data.driverId || data.ride?.driverId;
     
     if (driverId) {
-      // Broadcast ride acceptance to all connected clients (passenger will receive it)
+      
       io.emit("rideacceptedbydriver", {
         ride: data.ride,
         driverId: driverId,
         driverSocketId: socket.id
       });
+      console.log("the data been sent to the passenger:", data);
       console.log(`Driver ${driverId} accepted ride. Notified passengers.`);
     } else {
       console.log("Driver ID not found in accepted ride data");
