@@ -13,7 +13,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieparser())
 dbconnection()
-app.use('/api/senddetails',senddetailsrouter)
+app.use('/api/sd',senddetailsrouter)
 app.use('/api/user',authrouter)
 app.use('/api/caption',captionrouter)
 app.get('/',(req,res)=>{

@@ -1,6 +1,9 @@
 import React from 'react'
+import { useContext } from 'react'
+import { captioncontext } from '../context/Captioncontext'
 
 const Captiondetails = ({online,setonline}) => {
+  const {caption}=useContext(captioncontext)
   return (
     <div>
         <div className="flex flex-col items-center">
@@ -10,26 +13,10 @@ const Captiondetails = ({online,setonline}) => {
             alt=""
           />
 
-          <h2 className="text-xl font-semibold mt-2">John Carter</h2>
+          <h2 className="text-xl font-semibold mt-2">{caption.name}</h2>
           <p className="text-gray-500 text-xs">Professional Caption Driver</p>
         </div>
-
-        <div className="grid grid-cols-3 gap-3 mt-5 mb-6">
-          <div className="bg-gray-100 p-3 rounded-xl text-center shadow-inner border border-gray-200">
-            <h3 className="text-lg font-semibold">$185</h3>
-            <p className="text-gray-500 text-xs">Earned</p>
-          </div>
-
-          <div className="bg-gray-100 p-3 rounded-xl text-center shadow-inner border border-gray-200">
-            <h3 className="text-lg font-semibold">6.4h</h3>
-            <p className="text-gray-500 text-xs">Online</p>
-          </div>
-
-          <div className="bg-gray-100 p-3 rounded-xl text-center shadow-inner border border-gray-200">
-            <h3 className="text-lg font-semibold">82km</h3>
-            <p className="text-gray-500 text-xs">Distance</p>
-          </div>
-        </div>
+        
 
         <div className="bg-gray-50 rounded-2xl p-5 shadow-inner border border-gray-100 mb-6">
           <div className="flex items-center gap-4 mb-5">
@@ -37,8 +24,8 @@ const Captiondetails = ({online,setonline}) => {
               <i className="ri-car-fill"></i>
             </div>
             <div>
-              <h4 className="text-base font-semibold">Vehicle</h4>
-              <p className="text-gray-500 text-xs">Toyota Camry · Black · KA 09 M 4521</p>
+              <h4 className="text-base font-semibold">Vehicle Deatils</h4>
+              <p className="text-gray-500 text-xs">T{caption.vechicle.color} · {caption.vechicle.vechiletype} · {caption.vechicle.plate}</p>
             </div>
           </div>
 

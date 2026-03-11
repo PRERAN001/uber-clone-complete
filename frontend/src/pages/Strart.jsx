@@ -16,10 +16,19 @@ import { Usercontext } from "../context/Usecontext.jsx";
 import haversineDistance from "../utils/fnddsusngcordinates.js";
 import socket from "../utils/socket.js";
 import Waitingfordriver from "../../components/Waitingfordriver.jsx";
-
 const Strart = () => {
+  const persistRideCoordinates = (key, coords) => {
+    if (!coords) return;
+    console.log(coords)
+    try {
+      localStorage.setItem(key, JSON.stringify(coords));
+    } catch {
+      // no-op
+    }
+  };
+
   const [pickup, setpickup] = useState("");
-  const [drop, setdrop] = useState("");
+  const [, setdrop] = useState("");
   const [pannelopen, setpannelopen] = useState(false);
   const [vechicle2, setvechicle2] = useState(false);
   const [ride, setride] = useState(false);
@@ -42,7 +51,7 @@ const Strart = () => {
     latitude: 12.96,
     longitude: 77.58,
   });
-  const { droplocname, setDroplocname, location, setPickupname, setPickupppp, setinvitieacc, invitieacc} =
+  const { droplocname, setDroplocname, location, setPickupname, setPickupppp, setinvitieacc, invitieacc, user,setyourloc, setRideStartCoords, setRideDropCoords } =
     useContext(Usercontext);
   const [currentcordinates, setCurrentcordinates] = useState(null);
   const [distance, setDistance] = useState(0);
@@ -50,28 +59,51 @@ const Strart = () => {
 
   useEffect(() => {
     const handleRideAccepted = (data) => {
-      console.log("Ride accepted by driver:", data);
+      const acceptedRide = data?.ride && typeof data.ride === "object" ? data.ride : data;
+      const passengerName = (acceptedRide?.passenger || "").toString().toLowerCase();
+      const currentUserName = (user?.firstname || "").toString().toLowerCase();
+
+      // Ignore ride events that are for other passengers
+      if (currentUserName && passengerName && !passengerName.includes(currentUserName)) {
+        return;
+      }
+
+      // Move from waiting/searching state to allocated-driver state
+      setinvitieacc(false);
+      setride(false);
+      setvechicle2(false);
+      setpannelopen(false);
       setdfound(true);
-      setwdriver(true);
+      setwdriver(false);
+    };
+
+    const handleRideFinished = () => {
+      setpickup("");
+      setdrop("");
+      setpannelopen(false);
+      setvechicle2(false);
+      setride(false);
+      setdfound(false);
+      setwdriver(false);
+      setinvitieacc(false);
+      localStorage.removeItem("ridePickupCoords");
+      localStorage.removeItem("rideDropCoords");
     };
 
     socket.on("rideacceptedbydriver", handleRideAccepted);
+    socket.on("rideFinished", handleRideFinished);
 
     return () => {
       socket.off("rideacceptedbydriver", handleRideAccepted);
+      socket.off("rideFinished", handleRideFinished);
     };
-  }, []);
+  }, [setinvitieacc, user?.firstname]);
 
   useEffect(() => {
     let calculatedDistance = 0;
 
     if (set1cordinates && set2cordinates) {
       calculatedDistance = haversineDistance(set1cordinates, set2cordinates);
-      console.log(
-        "Distance between pickup and drop:",
-        calculatedDistance,
-        "km"
-      );
     }
 
     setDistance(calculatedDistance);
@@ -83,11 +115,15 @@ const Strart = () => {
         latitude: location.latitude,
         longitude: location.longitude,
       });
+      setRideStartCoords({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
       
       
       
     }
-  }, [location]);
+  }, [location, setRideStartCoords]);
 
   const senddatapickup = async () => {
     try {
@@ -97,18 +133,17 @@ const Strart = () => {
           location: pickup,
         }
       );
-      console.log(data.data.latlon);
-      setSet1cordinates({
+      const pickupCoords = {
         latitude: data.data.latlon.latitude,
         longitude: data.data.latlon.longitude,
-      });
+      };
+      setSet1cordinates(pickupCoords);
+      setRideStartCoords(pickupCoords);
+      persistRideCoordinates("ridePickupCoords", pickupCoords);
       setPickupname(pickup);
       setPickupppp(pickup);
-    } catch (err) {
-      console.error(
-        "Error sending pickup location:",
-        err?.response?.data || err.message
-      );
+    } catch {
+      // no-op
     }
   };
   const senddatadrop = async () => {
@@ -119,16 +154,15 @@ const Strart = () => {
           location: droplocname,
         }
       );
-      console.log(data.data.latlon);
-      setSet2cordinates({
+      const dropCoords = {
         latitude: data.data.latlon.latitude,
         longitude: data.data.latlon.longitude,
-      });
-    } catch (err) {
-      console.error(
-        "Error sending drop location:",
-        err?.response?.data || err.message
-      );
+      };
+      setSet2cordinates(dropCoords);
+      setRideDropCoords(dropCoords);
+      persistRideCoordinates("rideDropCoords", dropCoords);
+    } catch {
+      // no-op
     }
   };
 
@@ -143,7 +177,7 @@ const Strart = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [driverAllocated]);
+  }, [driverAllocated, setDriverAllocated]);
 
   useGSAP(() => {
     if (pannelopen) {
@@ -259,8 +293,8 @@ const Strart = () => {
         />
       </div>
 
-      <div className=" absolute flex flex-col justify-end top-0 h-screen w-full ">
-        <div className="h-[30%] bg-white p-5 flex flex-col justify-center">
+      <div className=" absolute flex flex-col justify-end top-0 h-screen w-full pointer-events-none">
+        <div className="h-[30%] bg-white p-5 flex flex-col justify-center pointer-events-auto">
           <h5
             ref={downarrow}
             onClick={() => {
@@ -290,9 +324,7 @@ const Strart = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   if (pickup.trim().length >= 3) {
-                    if (pickup === currentlocation) {
-                      console.log("Using current location, skipping API call");
-                    } else {
+                    if (pickup !== currentlocation) {
                       senddatapickup();
                     }
                   }
@@ -305,11 +337,15 @@ const Strart = () => {
                 onClick={() => {
                   setpickup(currentlocation);
                   if (currentcordinates) {
-                    setPickupname(currentlocation);
-                    setSet1cordinates({
+                    const pickupCoords = {
                       latitude: currentcordinates.latitude,
                       longitude: currentcordinates.longitude,
-                    });
+                    };
+                    setyourloc(pickupCoords)
+                    setPickupname(currentlocation);
+                    setSet1cordinates(pickupCoords);
+                    setRideStartCoords(pickupCoords);
+                    persistRideCoordinates("ridePickupCoords", pickupCoords);
                   }
                 }}
                 className="bg-black text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors whitespace-nowrap"
@@ -345,7 +381,7 @@ const Strart = () => {
 
         <div
           ref={pannelref}
-          className="bg-white h-0 "
+          className="bg-white h-0 pointer-events-auto"
           style={{ height: "0%", overflow: "hidden" }}
         >
           <LoacationSearchpannel
@@ -360,7 +396,7 @@ const Strart = () => {
         </div>
       </div>
       <div
-        className="fixed z-10 bottom-0 w-full bg-white px-3 py-6 shadow-2xl rounded-t-3xl transform translate-y-full"
+        className="fixed z-10 bottom-0 w-full bg-white px-3 py-6 shadow-2xl rounded-t-3xl transform translate-y-full pointer-events-auto"
         ref={vechiclepannel}
       >
         <Vechiclepannel
@@ -374,7 +410,7 @@ const Strart = () => {
         />
       </div>
       <div
-        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full"
+        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full pointer-events-auto"
         ref={ridepannel}
       >
         <Selectedvechicle
@@ -389,7 +425,7 @@ const Strart = () => {
         />
       </div>
       <div
-        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full"
+        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full pointer-events-auto"
         ref={waitingfordriverref}
       >
         <Lookingfordriver
@@ -402,14 +438,14 @@ const Strart = () => {
         />
       </div>
       <div
-        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full"
+        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full pointer-events-auto"
         ref={accbydriver}
       >
         <Waitingfordriver />
         
       </div>
       <div
-        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full"
+        className="fixed z-10 bottom-0 w-full bg-white px-3 py-3 shadow-2xl rounded-t-3xl transform translate-y-full pointer-events-auto"
         ref={vfoundref}
       >
         <Allocateddriver

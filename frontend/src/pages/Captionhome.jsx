@@ -17,11 +17,9 @@ const Captionhome = () => {
   const captiondetalsref = useRef(null);
   useEffect(()=>{
     socket.on('connect',()=>{
-      console.log('connected to server')
     })
-    // listen for server popup events and show the ride popup
+    
     const onPopup = (data) => {
-      console.log('popupdata', data)
       setridepopupdata(data)
       setShowPopup(true)
     }
@@ -108,7 +106,7 @@ const Captionhome = () => {
         ref={confirmPopupRef}
         className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl transform translate-y-full"
       >
-        <ConfirmRidePopup setShowConfirmPopup={setShowConfirmPopup} setShowPopup={setShowPopup}/>
+        <ConfirmRidePopup setShowConfirmPopup={setShowConfirmPopup} setShowPopup={setShowPopup} ridepopupdata={ridepopupdata}/>
       </div>
     </div>
   );

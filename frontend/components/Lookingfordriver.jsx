@@ -18,19 +18,30 @@ const Lookingfordriver = ({setdfound,vfound,setride,valuepick,valuedrop, setwdri
       v=car
     }
    
- const data = {
+  const readCoords = (key) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.latitude != null && parsed.longitude != null) return parsed;
+      return null;
+    } catch { return null; }
+  };
+
+  const data = {
     valuepick,
     valuedrop,
     Price,
     vechicle,
     user: user && user.firstname ? `${user.firstname} ${user.lastname}` : "Unknown User",
     driverId: localStorage.getItem("driverid"),
-};
+    pickupCoords: readCoords("ridePickupCoords"),
+    dropCoords: readCoords("rideDropCoords"),
+  };
 
   function senddata(){
     setinvitieacc(true)
     setwdriver(false)
-    console.log("Sending lookingfordriver data:", data);
     socket.emit('lookingfordriver',data)
   }
   

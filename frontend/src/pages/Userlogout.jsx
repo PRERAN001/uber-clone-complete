@@ -20,8 +20,8 @@ const Userlogout = () => {
 
         localStorage.removeItem("token");
         navigate("/userlogin");
-      } catch (err) {
-        console.log(err);
+      } catch {
+        // no-op
       }
     };
 

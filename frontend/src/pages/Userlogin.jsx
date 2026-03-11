@@ -13,7 +13,7 @@ const userlogin = () => {
   async function submithandler(e) {
     e.preventDefault();
 
-    const response = await axios.post(`${import.meta.env.VITE_BASEURL}/userlogin`, {
+    const response = await axios.post(`${import.meta.env.VITE_BASEURL}/api/user/userlogin`, {
       email: email,
       password: password,
     });

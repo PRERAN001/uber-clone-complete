@@ -42,7 +42,6 @@ module.exports.logincaption=async(req,res)=>{
             return res.status(400).json({errors:errors.array()})
         }
         const {email,password}=req.body
-        console.log("emial",email,password)
         
         let iscaptionexists=await captionmodel.findOne({email}).select('+password')
         if(!iscaptionexists){
@@ -83,7 +82,6 @@ module.exports.getprofile = async (req, res) => {
 module.exports.logout = async (req, res) => {
     try {
         const token = req.cookies?.token || req.headers?.authorization?.split(" ")[1];
-        console.log("caption logout token:", token);
 
         if (token) {
             await blacklistedtokenmodel.create({ token });

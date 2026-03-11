@@ -20,15 +20,40 @@ const ContextProvider = (props) => {
     const [pickupname, setPickupname] = useState("");
     const [pickupppp, setPickupppp] = useState("");
     const [invitieacc, setinvitieacc] = useState(false);
+    const [yourloc,setyourloc]=useState()
+    const [rideStartCoords, setRideStartCoords] = useState(() => {
+        try {
+            const savedStart = localStorage.getItem('rideStartCoords');
+            if (!savedStart) return null;
+            const parsedStart = JSON.parse(savedStart);
+            if (parsedStart?.latitude != null && parsedStart?.longitude != null) {
+                return parsedStart;
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    });
+    const [rideDropCoords, setRideDropCoords] = useState(() => {
+        try {
+            const savedDrop = localStorage.getItem('rideDropCoords');
+            if (!savedDrop) return null;
+            const parsedDrop = JSON.parse(savedDrop);
+            if (parsedDrop?.latitude != null && parsedDrop?.longitude != null) {
+                return parsedDrop;
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    });
     
     // Initialize finalpickup and finaldrop from localStorage
     const [finalpickup, setFinalpickup] = useState(() => {
         try {
             const saved = localStorage.getItem('finalpickup');
-            console.log("Loading finalpickup from localStorage:", saved);
             return saved || null;
-        } catch (e) {
-            console.error("Error loading finalpickup from localStorage:", e);
+        } catch {
             return null;
         }
     });
@@ -36,10 +61,8 @@ const ContextProvider = (props) => {
     const [finaldrop, setFinaldrop] = useState(() => {
         try {
             const saved = localStorage.getItem('finaldrop');
-            console.log("Loading finaldrop from localStorage:", saved);
             return saved || null;
-        } catch (e) {
-            console.error("Error loading finaldrop from localStorage:", e);
+        } catch {
             return null;
         }
     });
@@ -49,9 +72,8 @@ const ContextProvider = (props) => {
         if (finalpickup) {
             try {
                 localStorage.setItem('finalpickup', finalpickup);
-                console.log("Saved finalpickup to localStorage:", finalpickup);
-            } catch (e) {
-                console.error("Error saving finalpickup to localStorage:", e);
+            } catch {
+                // no-op
             }
         }
     }, [finalpickup]);
@@ -60,9 +82,8 @@ const ContextProvider = (props) => {
         if (finaldrop) {
             try {
                 localStorage.setItem('finaldrop', finaldrop);
-                console.log("Saved finaldrop to localStorage:", finaldrop);
-            } catch (e) {
-                console.error("Error saving finaldrop to localStorage:", e);
+            } catch {
+                // no-op
             }
         }
     }, [finaldrop]);
@@ -72,9 +93,8 @@ const ContextProvider = (props) => {
         if (Price) {
             try {
                 localStorage.setItem('ridePrice', Price.toString());
-                console.log("Saved price to localStorage:", Price);
-            } catch (e) {
-                console.error("Error saving price to localStorage:", e);
+            } catch {
+                // no-op
             }
         }
     }, [Price]);
@@ -84,25 +104,45 @@ const ContextProvider = (props) => {
         if (vechicle) {
             try {
                 localStorage.setItem('selectedVehicle', vechicle);
-                console.log("Saved vehicle to localStorage:", vechicle);
-            } catch (e) {
-                console.error("Error saving vehicle to localStorage:", e);
+            } catch {
+                // no-op
             }
         }
     }, [vechicle]);
-    
+
+    useEffect(() => {
+        if (rideStartCoords) {
+            try {
+                localStorage.setItem('rideStartCoords', JSON.stringify(rideStartCoords));
+            } catch {
+                // no-op
+            }
+        }
+    }, [rideStartCoords]);
+
+    useEffect(() => {
+        if (rideDropCoords) {
+            try {
+                localStorage.setItem('rideDropCoords', JSON.stringify(rideDropCoords));
+            } catch {
+                // no-op
+            }
+        }
+    }, [rideDropCoords]);
+
     useEffect(() => {
         getlocation().then((data) => {
             if (data) {
                 setLocation(data);
             }
-        }).catch((error) => {
-            console.error("Error getting location:", error);
+        }).catch(() => {
+            // no-op
         });
     }, []);
     
     return (
         <Usercontext.Provider value={{ 
+            yourloc,setyourloc,
             user, 
             setuser, 
             location, 
@@ -118,6 +158,10 @@ const ContextProvider = (props) => {
             pickupname,
             setPickupname,
             setPickupppp,
+            rideStartCoords,
+            setRideStartCoords,
+            rideDropCoords,
+            setRideDropCoords,
             invitieacc,
             setinvitieacc,
             finalpickup, 

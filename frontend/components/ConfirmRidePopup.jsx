@@ -1,35 +1,29 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext } from 'react'
-import { Usercontext } from '../src/context/Usecontext'
-import { captioncontext } from '../src/context/Captioncontext'
-const ConfirmRidePopup = ({ setShowPopup }) => {
+import socket from "../src/utils/socket";
+
+const ConfirmRidePopup = ({ setShowPopup, setShowConfirmPopup, ridepopupdata = {} }) => {
   const navigate = useNavigate();
-  const { user, droplocname, pickupppp, Price, setPrice, setPickupname, setPickupppp, setFinalpickup, setFinaldrop } = useContext(Usercontext)
-  const { caption } = useContext(captioncontext)
-  const displayPrice = (Price && Number(Price) > 0) ? Price : 38.75;
+  const data = ridepopupdata || {};
 
   function handleConfirm() {
-    // ensure context has the selected pickup and price
-    if (typeof setPickupname === 'function') setPickupname(pickupppp || "");
-    if (typeof setPickupppp === 'function') setPickupppp(pickupppp || "");
-    if (typeof setPrice === 'function') setPrice(displayPrice);
-    // also set final pickup/drop so other pages relying on final* fields update
-    if (typeof setFinalpickup === 'function') setFinalpickup(pickupppp || "");
-    if (typeof setFinaldrop === 'function') setFinaldrop(droplocname || "");
-    // persist to localStorage as a synchronous fallback for immediate navigation
-    try {
-      localStorage.setItem('finalpickup', pickupppp || '');
-      localStorage.setItem('finaldrop', droplocname || '');
-      localStorage.setItem('ridePrice', String(displayPrice));
-      const pname = (user && user.firstname) || (caption && caption.firstname) || '';
-      if (pname) localStorage.setItem('passengerName', pname);
-    } catch (e) {
-      // ignore localStorage errors
-    }
-    setShowPopup(false);
+    const payload = {
+      ride: data,
+    };
+
+    // keep typo event for backward compatibility + corrected event name
+    socket.emit("ridefinallyaccepetd", payload);
+    socket.emit("rideFinallyAccepted", payload);
+
+    if (typeof setShowPopup === "function") setShowPopup(false);
+    if (typeof setShowConfirmPopup === "function") setShowConfirmPopup(false);
     navigate('/captionriding');
   }
+
+  const pickup = data?.pickup || "Union Square, San Francisco";
+  const dropoff = data?.drop || data?.dropoff || "International Terminal";
+  const fare = data?.fare ?? "20.00";
+
   return (
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between mb-6">
@@ -59,7 +53,7 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
                 Pickup
               </p>
               <p className="text-gray-900 font-medium text-base sm:text-lg truncate">
-                {pickupppp || "Union Square, San Francisco"}
+                {pickup}
               </p>
               <p className="text-gray-500 text-xs sm:text-sm">
                 Pickup in 3 minutes
@@ -70,7 +64,7 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
                 Drop-off
               </p>
               <p className="text-gray-900 font-medium text-base sm:text-lg truncate">
-                {droplocname || "International Terminal"}
+                {dropoff}
               </p>
               <p className="text-gray-500 text-xs sm:text-sm">
                 International Terminal
@@ -96,7 +90,7 @@ const ConfirmRidePopup = ({ setShowPopup }) => {
             </div>
           </div>
           <p className="text-gray-900 text-lg sm:text-xl font-bold ml-4 shrink-0">
-            ${displayPrice}
+            ${fare}
           </p>
         </div>
         <div className="h-px bg-gray-200 mb-3 sm:mb-4"></div>

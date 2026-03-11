@@ -4,7 +4,6 @@ const { validationResult } = require("express-validator");
 const blacklistedtokenmodel=require('../models/blacklistedtoken.js')
 
 module.exports.registeruser = async (req, res) => {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -26,7 +25,6 @@ module.exports.registeruser = async (req, res) => {
         email,
         password: hashpassword
     });
-    console.log("user",user)
 
     const token = tempUser.generateAuthToken();
 
@@ -60,8 +58,6 @@ module.exports.logout = async (req, res) => {
   const token =
     req.cookies?.token ||
     req.headers?.authorization?.split(" ")[1];
-
-  console.log("logout token:", token);
 
   await blacklistedtokenmodel.create({ token });
 

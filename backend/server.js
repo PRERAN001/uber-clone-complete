@@ -12,28 +12,19 @@ const io = new Server(server, {
 const driverConnections = {};
 
 io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
-
   socket.on("driverconnect", (driverId) => {
     driverConnections[driverId] = socket.id;
-    console.log(`Driver ${driverId} connected with socket ID: ${socket.id}`);
   });
 
   socket.on("lookingfordriver", (data) => {
-    console.log(data);
-
     const allDrivers = Object.values(driverConnections);
 
     if (allDrivers.length > 0) {
       const driverSocketId = allDrivers[0];
       socket.to(driverSocketId).emit("popupdata", data);
-      console.log(`Sent popup to driver ${driverSocketId}`);
-    } else {
-      console.log("No drivers online");
     }
   });
   socket.on("rideaccepted", (data) => {
-    console.log("Driver accepted ride:", data);
     const driverId = data.driverId || data.ride?.driverId;
     
     if (driverId) {
@@ -43,25 +34,46 @@ io.on("connection", (socket) => {
         driverId: driverId,
         driverSocketId: socket.id
       });
-      console.log("the data been sent to the passenger:", data);
-      console.log(`Driver ${driverId} accepted ride. Notified passengers.`);
-    } else {
-      console.log("Driver ID not found in accepted ride data");
     }
   });
+  socket.on("ridefinallyaccepetd", (data) => {
+    io.emit("laststep", {
+      ride: data?.ride || data,
+    });
+  });
 
+  socket.on("rideFinallyAccepted", (data) => {
+    io.emit("laststep", {
+      ride: data?.ride || data,
+    });
+  });
+
+  socket.on("captionarrived", (data = {}) => {
+    io.emit("captionarrived", data);
+  });
+
+  socket.on("tripstarted", (data = {}) => {
+    io.emit("tripstarted", data);
+  });
+
+  socket.on("tripcompleted", (data = {}) => {
+    io.emit("tripcompleted", data);
+  });
+
+  socket.on("rideFinished", (data = {}) => {
+    io.emit("rideFinished", data);
+  });
 
   socket.on("disconnect", () => {
     for (let driverId in driverConnections) {
       if (driverConnections[driverId] === socket.id) {
         delete driverConnections[driverId];
-        console.log(`Driver ${driverId} disconnected`);
         break;
       }
     }
   });
+  
 });
 const port = process.env.port || 3000;
 server.listen(port, () => {
-  console.log(`server is running on port http://localhost:${port}`);
 });

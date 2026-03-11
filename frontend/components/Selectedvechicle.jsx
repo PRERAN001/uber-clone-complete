@@ -25,7 +25,7 @@ const Selectedvechicle = ({ setvechicle2 ,setride,setdfound,setwdriver,valuepick
       <div
         className="text-3xl font-semibold mb-2 ml-1 cursor-pointer"
         onClick={() => {
-          setvechicle2(false)
+          setvechicle2(true)
           setride(false)
         }}
       >

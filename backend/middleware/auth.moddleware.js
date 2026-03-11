@@ -12,7 +12,6 @@ const getTokenFromRequest = (req) => {
 
 const authmiddleware=async(req,res,next)=>{
         const token = getTokenFromRequest(req);
-    console.log("token",token)
     const isauth=await blacklistedtokenmodel.findOne({'token':token})
     if(isauth){
         return res.status(401).json({error:"unauthorized istoken"})
@@ -33,7 +32,6 @@ const authmiddleware=async(req,res,next)=>{
 module.exports=authmiddleware
 module.exports.captonmiddleware=async(req,res,next)=>{
         const token = getTokenFromRequest(req);
-    console.log("token",token)
     const isauth=await blacklistedtokenmodel.findOne({'token':token})
     if(isauth){
         return res.status(401).json({error:"unauthorized istoken"})

@@ -42,7 +42,6 @@ userschema.methods.comparePassword = async function (password) {
 
 
 userschema.methods.generateAuthToken = function () {
-    console.log("jwt",process.env.jwtsecret)
     return jsonwebtoken.sign({ _id: this._id }, process.env.jwtsecret,{expiresIn:'24h'});
 };
 

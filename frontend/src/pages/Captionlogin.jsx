@@ -7,7 +7,7 @@ import socket from "../utils/socket";
 const Captionlogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { caption, setcaption } = useContext(captioncontext);
+  const { setcaption } = useContext(captioncontext);
   const navigate = useNavigate();
 
   async function submithandler(e) {
@@ -16,31 +16,25 @@ const Captionlogin = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BASEURL_client}/captionlogin`,
+        `${import.meta.env.VITE_BASEURL_client}/api/caption/captionlogin`,
         data
       );
-
-      console.log("Full login response:", response.data);
       
       if (response.status === 200) {
         setcaption(response.data);
         localStorage.setItem("token", response.data.token);
         
-        // Store driverid and verify it was stored
+        
         const driverId = response.data.driverid || response.data._id;
         if (driverId) {
           localStorage.setItem("driverid", driverId);
-          console.log("Driver login successful, driverid stored:", driverId);
-          console.log("Emitting driverconnect with driverid:", driverId);
           socket.emit('driverconnect', driverId);
-        } else {
-          console.error("ERROR: driverId is null/undefined in response!");
         }
         
         navigate("/captionhome");
       }
-    } catch (error) {
-      console.error("Login error:", error.response?.data || error.message);
+    } catch {
+      // no-op
     }
 
     setEmail("");

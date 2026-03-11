@@ -19,7 +19,7 @@ const Userregister = () => {
         const newuser = { firstname, lastname, email, password };
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BASEURL}/userregister`, newuser);
+            const response = await axios.post(`${import.meta.env.VITE_BASEURL}/api/user/userregister`, newuser);
             if (response.status === 201) {
                 setuser(response.data.user || response.data);
                 localStorage.setItem("token", response.data.token);

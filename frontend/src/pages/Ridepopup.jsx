@@ -1,20 +1,12 @@
-import React,{useState,useEffect} from "react";
+import React from "react";
 import socket from "../utils/socket";
 import { captioncontext } from "../context/Captioncontext";
 import { useContext } from "react";
 import {Usercontext} from "../context/Usecontext.jsx"
 const Ridepopup = ({ setShowPopup, setShowConfirmPopup, ridepopupdata = {} }) => {
-  const [data, setData] = useState({});
   const { caption } = useContext(captioncontext);
-  const {invitieacc,setinvitieacc}=useContext(Usercontext)
-
-  useEffect(() => {
-    if (ridepopupdata && Object.keys(ridepopupdata).length) {
-      setData(ridepopupdata);
-      console.log("Ridepopup received data:", ridepopupdata);
-      console.log("Driver context (caption):", caption);
-    }
-  }, [ridepopupdata, caption]);
+  const { setinvitieacc } = useContext(Usercontext)
+  const data = ridepopupdata && Object.keys(ridepopupdata).length ? ridepopupdata : {};
     const ride = {
       pickup: data.valuepick || "",
       drop: data.valuedrop || "",
@@ -24,10 +16,12 @@ const Ridepopup = ({ setShowPopup, setShowConfirmPopup, ridepopupdata = {} }) =>
       passenger: data.user || "",
       passengerImg: data.userImg || "https://randomuser.me/api/portraits/women/68.jpg",
       driver: caption.firstname || "Unknown Driver",
-      driverImg: caption.vechicle?.color || "https://randomuser.me/api/portraits/men/68.jpg",
+      driverImg: caption.vechicle?.color || "https://www.google.com/imgres?q=driver&imgurl=https%3A%2F%2Fwww.rajasthantourdriver.com%2Fwp-content%2Fuploads%2F2023%2F07%2Findiacar.jpg&imgrefurl=https%3A%2F%2Fwww.rajasthantourdriver.com%2Findia%2Fhiring-a-car-and-driver-in-india%2F&docid=cG7k1ocyjEKeyM&tbnid=igMLQW2nNxva_M&vet=12ahUKEwjwxYfNhpiTAxX5aCoJHWU0BXMQnPAOegQIHxAB..i&w=1000&h=667&hcb=2&ved=2ahUKEwjwxYfNhpiTAxX5aCoJHWU0BXMQnPAOegQIHxAB",
       vehicleType: caption.vechicle?.vechicletype || "Unknown Vehicle",
       vehiclePlate: caption.vechicle?.plate || "Unknown Plate",
       driverId: localStorage.getItem("driverid") || "Unknown Driver ID",
+      pickupCoords: data.pickupCoords || null,
+      dropCoords: data.dropCoords || null,
     };
 
   const handleAccept = () => {
@@ -36,10 +30,7 @@ const Ridepopup = ({ setShowPopup, setShowConfirmPopup, ridepopupdata = {} }) =>
     setinvitieacc(false)
     
     const driverId = localStorage.getItem("driverid");
-    console.log("Driver accepting ride with driverId:", driverId);
-    console.log("Ride data being emitted:", ride);
-    
-    // Emit ride acceptance with driver ID so backend can route back to passenger
+
     socket.emit("rideaccepted", {
       ride,
       driverId: driverId,

@@ -13,7 +13,7 @@ const Captionregister = () => {
   const [capacity, setcapacity] = useState("");
   const [vehicletype, setvehicletype] = useState("");
   const navigate = useNavigate();  
-  const { caption, setcaption } = useContext(captioncontext);
+  const { setcaption } = useContext(captioncontext);
 
   async function submithandler(e) {
     e.preventDefault();
@@ -42,15 +42,13 @@ const Captionregister = () => {
     };
 
     try {
-      console.log('Submitting caption registration:', data);
-      const response = await axios.post(`${import.meta.env.VITE_BASEURL_client}/captionregister`, data);
+      const response = await axios.post(`${import.meta.env.VITE_BASEURL_client}/api/caption/captionregister`, data);
       if (response.status === 201 || response.status === 200) {
         setcaption(response.data.caption || response.data); 
         localStorage.setItem('token', response.data.token);
-        navigate("/captionhome");
+        navigate("/captionlogin");
       }
     } catch (err) {
-      console.error('Caption registration error:', err?.response?.data || err.message);
       alert(`Registration failed: ${err?.response?.data?.error || err.message}`);
       return;
     }
