@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { captioncontext } from "../context/Captioncontext.jsx";
@@ -7,13 +7,8 @@ import socket from "../utils/socket";
 const Captionlogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [captiondata, setcaptiondata] = useState({});
   const { caption, setcaption } = useContext(captioncontext);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    console.log(captiondata);
-  }, [captiondata]);
 
   async function submithandler(e) {
     e.preventDefault();
@@ -28,7 +23,6 @@ const Captionlogin = () => {
       console.log("Full login response:", response.data);
       
       if (response.status === 200) {
-        setcaptiondata(data);
         setcaption(response.data);
         localStorage.setItem("token", response.data.token);
         

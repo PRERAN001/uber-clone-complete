@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { alocdriver } from "../src/context/allocateddrivercontext";
+import { alocdriver } from "../src/context/Allocateddrivercontext";
 import { useContext } from "react";
 import car from "../src/assets/car.png"
 import auto from "../src/assets/auto.png"

@@ -2,9 +2,11 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext } from 'react'
 import { Usercontext } from '../src/context/Usecontext'
+import { captioncontext } from '../src/context/Captioncontext'
 const ConfirmRidePopup = ({ setShowPopup }) => {
   const navigate = useNavigate();
   const { user, droplocname, pickupppp, Price, setPrice, setPickupname, setPickupppp, setFinalpickup, setFinaldrop } = useContext(Usercontext)
+  const { caption } = useContext(captioncontext)
   const displayPrice = (Price && Number(Price) > 0) ? Price : 38.75;
 
   function handleConfirm() {

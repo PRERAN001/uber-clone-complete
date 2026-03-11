@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, use } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import "remixicon/fonts/remixicon.css";
@@ -8,7 +8,7 @@ import Selectedvechicle from "../../components/Selectedvechicle";
 import Lookingfordriver from "../../components/Lookingfordriver";
 import Allocateddriver from "../../components/Allocateddriver";
 gsap.registerPlugin(useGSAP);
-import { alocdriver } from "../context/allocateddrivercontext.jsx";
+import { alocdriver } from "../context/Allocateddrivercontext.jsx";
 import { useContext } from "react";
 import Ubermap from "../../components/Ubermap.jsx";
 import axios from "axios";
@@ -42,7 +42,7 @@ const Strart = () => {
     latitude: 12.96,
     longitude: 77.58,
   });
-  const { droplocname, location, setPickupname, setPickupppp ,driverprice,setinvitieacc,invitieacc} =
+  const { droplocname, setDroplocname, location, setPickupname, setPickupppp, setinvitieacc, invitieacc} =
     useContext(Usercontext);
   const [currentcordinates, setCurrentcordinates] = useState(null);
   const [distance, setDistance] = useState(0);
@@ -103,9 +103,7 @@ const Strart = () => {
         longitude: data.data.latlon.longitude,
       });
       setPickupname(pickup);
-     
       setPickupppp(pickup);
-      console.log("final pickup",finalpickup)
     } catch (err) {
       console.error(
         "Error sending pickup location:",
@@ -126,8 +124,6 @@ const Strart = () => {
         latitude: data.data.latlon.latitude,
         longitude: data.data.latlon.longitude,
       });
-      
-      console.log("final drop",finaldrop)
     } catch (err) {
       console.error(
         "Error sending drop location:",
