@@ -6,7 +6,7 @@ import auto from "../src/assets/auto.png"
 import bike from "../src/assets/bike.png"
 import socket from "../src/utils/socket"
 const Lookingfordriver = ({setdfound,vfound,setride,valuepick,valuedrop, setwdriver}) => {
-  const {Price,setPrice,vechicle,distance,setDistance,time,setTime,user,invitieacc,setinvitieacc} = useContext(Usercontext)
+  const {Price, vechicle, user, invitieacc, setinvitieacc} = useContext(Usercontext)
   let v=car
     if(vechicle=="auto"){
       v=auto
@@ -22,8 +22,6 @@ const Lookingfordriver = ({setdfound,vfound,setride,valuepick,valuedrop, setwdri
     valuepick,
     valuedrop,
     Price,
-    distance,
-    time,
     vechicle,
     user: user && user.firstname ? `${user.firstname} ${user.lastname}` : "Unknown User",
     driverId: localStorage.getItem("driverid"),

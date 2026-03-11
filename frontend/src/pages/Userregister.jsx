@@ -12,7 +12,6 @@ const Userregister = () => {
     const [lastname, setLastname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [userdata, setuserdata] = useState({});
     const {user,setuser}=useContext(Usercontext)
 
     async function submithandler(e) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,13 +7,8 @@ import { Usercontext } from "../context/Usecontext";
 const userlogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userdata, setuserdata] = useState({});
   const navigate = useNavigate();
   const { user, setuser } = useContext(Usercontext);
-
-  useEffect(() => {
-    console.log(userdata);
-  }, [userdata]);
 
   async function submithandler(e) {
     e.preventDefault();
@@ -25,7 +20,6 @@ const userlogin = () => {
 
     setuser(response.data);
     localStorage.setItem("token", response.data.token);
-    setuserdata(response.data);
     navigate("/start");
 
     setEmail("");
