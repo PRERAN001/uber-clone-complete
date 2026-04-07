@@ -1,5 +1,12 @@
 # 🚗 Uber Clone — Full-Stack Ride-Sharing Application
 
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-4.8-010101?logo=socket.io&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![License](https://img.shields.io/badge/License-ISC-blue)
+
 A full-stack, real-time ride-sharing web application inspired by Uber. It supports two types of users — **Passengers** and **Drivers** — with live ride matching, interactive maps, and real-time trip status updates via WebSockets.
 
 ---
@@ -7,6 +14,7 @@ A full-stack, real-time ride-sharing web application inspired by Uber. It suppor
 ## 📋 Table of Contents
 
 - [Features](#-features)
+- [How It Works](#-how-it-works)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
@@ -22,7 +30,6 @@ A full-stack, real-time ride-sharing web application inspired by Uber. It suppor
 - [Data Models](#-data-models)
 - [Authentication](#-authentication)
 - [Maps & Location](#-maps--location)
-- [Screenshots](#-screenshots)
 - [Contributing](#-contributing)
 
 ---
@@ -50,6 +57,40 @@ A full-stack, real-time ride-sharing web application inspired by Uber. It suppor
 - Socket.io for live two-way communication between passengers and drivers
 - Ride request broadcasting to all available online drivers
 - Trip lifecycle events managed via the server
+
+---
+
+## 🔄 How It Works
+
+Below is the end-to-end lifecycle of a single ride:
+
+```
+Passenger                          Server                        Driver
+   |                                  |                             |
+   |-- Login / Register ------------->|                             |
+   |                                  |<--- Login / Register -------|
+   |                                  |<--- driverconnect (socket) -|
+   |                                  |     (driver goes online)    |
+   |-- lookingfordriver (socket) ---->|                             |
+   |   (pickup, dropoff, vehicle)     |-- broadcast ride request -->|
+   |                                  |                             |
+   |                                  |<-- rideaccepted (socket) --|
+   |<-- rideacceptedbydriver ---------|                             |
+   |   (driver details + ETA)         |                             |
+   |                                  |<-- captionarrived ---------|
+   |<-- driver arrived notification --|                             |
+   |                                  |<-- tripstarted ------------|
+   |<-- trip started notification ----|                             |
+   |                                  |<-- tripcompleted ----------|
+   |<-- trip completed notification --|                             |
+   |                                  |<-- rideFinished -----------|
+```
+
+1. **Passenger** books a ride by entering a pickup & drop-off location and selecting a vehicle type.
+2. The server broadcasts the ride request to all **online drivers** via Socket.io.
+3. The first driver to accept is assigned; their details are pushed back to the passenger in real time.
+4. The driver updates trip status at each stage (arrived → started → completed), and the passenger's UI updates live.
+5. On completion, both sides return to their idle state and the socket session is cleaned up.
 
 ---
 
